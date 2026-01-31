@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { logout } from "@/lib/actions"
-import { LogOut, User, ChevronDown } from "lucide-react"
+import { LogOut, User, Settings, ChevronDown } from "lucide-react"
 
 interface UserNavProps {
     user: {
@@ -51,6 +51,12 @@ export function UserNav({ user }: UserNavProps) {
                     <a href="/dashboard/profile" className="cursor-pointer">
                         <User className="mr-2 h-4 w-4" />
                         <span>Profile</span>
+                    </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <a href="/dashboard/settings" className="cursor-pointer">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
                     </a>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
