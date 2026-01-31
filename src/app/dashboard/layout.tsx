@@ -1,6 +1,5 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
-import { ModeToggle } from "@/components/mode-toggle"
 import { Separator } from "@/components/ui/separator"
 import {
     Breadcrumb,
@@ -10,11 +9,16 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { auth } from "@/auth"
+import { UserNav } from "@/components/user-nav"
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const session = await auth()
+    const user = session?.user
+
     return (
         <SidebarProvider>
-            <AppSidebar />
+            <AppSidebar user={user} />
             <main className="flex-1 flex flex-col h-screen overflow-hidden">
                 <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 bg-background z-10">
                     <div className="flex items-center gap-2">
@@ -33,7 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </Breadcrumb>
                     </div>
                     <div className="flex items-center gap-4">
-                        <ModeToggle />
+                        {user && <UserNav user={user} />}
                     </div>
                 </header>
                 <div className="flex-1 overflow-auto p-4 md:p-6 bg-muted/20">

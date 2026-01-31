@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, Database, Settings, Box, User, LogOut } from "lucide-react"
+import { Home, Database, Settings, Box, User, LogOut, ChevronRight, FileText, LayoutDashboard, Component, Server } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -15,80 +15,166 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarProvider,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-import { cn } from "@/lib/utils"
+
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { logout } from "@/lib/actions"
 
-// Menu items.
+// Refined menu structure
 const items = [
     {
-        title: "Dashboard",
-        url: "/dashboard",
-        icon: Home,
+        title: "Overview",
+        type: "group",
+        items: [
+            {
+                title: "Dashboard",
+                url: "/dashboard",
+                icon: Home,
+            },
+            {
+                title: "Analytics",
+                url: "/dashboard/analytics",
+                icon: LayoutDashboard,
+            },
+        ]
     },
     {
-        title: "Database",
-        url: "/dashboard/database",
-        icon: Database,
-    },
-    {
-        title: "Components",
-        url: "/dashboard/components",
-        icon: Box,
-    },
-    {
-        title: "Profile",
-        url: "/dashboard/profile",
-        icon: User,
+        title: "Platform",
+        type: "group",
+        items: [
+            {
+                title: "Database",
+                icon: Database,
+                // Accordion Item
+                items: [
+                    { title: "All Tables", url: "/dashboard/database" },
+                    { title: "Query Editor", url: "/dashboard/database/query" },
+                    { title: "Migrations", url: "/dashboard/database/migrations" },
+                ]
+            },
+            {
+                title: "Components",
+                icon: Box,
+                // Accordion Item
+                items: [
+                    { title: "Library", url: "/dashboard/components" },
+                    { title: "Primitives", url: "/dashboard/components/primitives" },
+                ]
+            },
+            {
+                title: "API Keys",
+                url: "/dashboard/api-keys",
+                icon: Server,
+                // Flat item mixed in
+            }
+        ]
     },
     {
         title: "Settings",
-        url: "/dashboard/settings",
-        icon: Settings,
-    },
+        type: "group",
+        items: [
+            {
+                title: "General",
+                url: "/dashboard/settings",
+                icon: Settings,
+            },
+            {
+                title: "Profile",
+                url: "/dashboard/profile",
+                icon: User,
+            },
+            {
+                title: "Documentation",
+                url: "/docs",
+                icon: FileText,
+            },
+        ]
+    }
 ]
 
-export function AppSidebar() {
+export function AppSidebar({ user }: { user?: any }) {
     const pathname = usePathname()
 
     return (
-        <Sidebar>
-            <SidebarHeader className="h-16 flex items-center justify-center border-b px-6">
-                <span className="text-xl font-bold bg-gradient-to-tr from-primary to-purple-600 bg-clip-text text-transparent">Template</span>
+        <Sidebar className="border-r-0 bg-white/60 dark:bg-zinc-950/60 backdrop-blur-2xl shadow-xl transition-all duration-300">
+            <SidebarHeader className="h-16 flex items-center justify-center border-b border-black/5 dark:border-white/5 px-6">
+                <span className="text-xl font-bold bg-gradient-to-tr from-primary to-purple-600 bg-clip-text text-transparent">
+                    Nexus Admin
+                </span>
             </SidebarHeader>
-            <SidebarContent>
-                <SidebarGroup>
-                    <SidebarGroupLabel className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-2">
-                        Overview
-                    </SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {items.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
-                                        <Link href={item.url}>
-                                            <item.icon className="h-4 w-4" />
-                                            <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
+            <SidebarContent className="px-2 py-4 gap-6">
+                {items.map((group, index) => (
+                    <SidebarGroup key={index} className="px-0">
+                        <SidebarGroupLabel className="px-4 text-xs font-semibold text-muted-foreground/70 uppercase tracking-widest mb-2">
+                            {group.title}
+                        </SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {group.items.map((item: any) => (
+                                    <SidebarMenuItem key={item.title}>
+                                        {item.items ? (
+                                            <div className="mt-2 mb-4 space-y-1">
+                                                <div className="px-2 py-1.5 flex items-center gap-2 text-sm font-bold text-foreground/70 uppercase tracking-tight">
+                                                    {item.icon && <item.icon className="h-4 w-4" />}
+                                                    <span>{item.title}</span>
+                                                </div>
+                                                <SidebarMenuSub className="space-y-1 pl-2 border-l-0 px-0 mx-0 mt-0">
+                                                    {item.items.map((subItem: any) => (
+                                                        <SidebarMenuSubItem key={subItem.title}>
+                                                            <SidebarMenuSubButton
+                                                                asChild
+                                                                isActive={pathname === subItem.url}
+                                                                size="md"
+                                                                className="h-10 text-base font-medium border border-transparent hover:bg-sidebar-accent hover:border-sidebar-border hover:shadow-sm transition-all"
+                                                            >
+                                                                <Link href={subItem.url}>
+                                                                    <span>{subItem.title}</span>
+                                                                </Link>
+                                                            </SidebarMenuSubButton>
+                                                        </SidebarMenuSubItem>
+                                                    ))}
+                                                </SidebarMenuSub>
+                                            </div>
+                                        ) : (
+                                            <SidebarMenuButton
+                                                asChild
+                                                isActive={pathname === item.url}
+                                                tooltip={item.title}
+                                                size="lg"
+                                                className="h-12 text-base font-medium border border-transparent shadow-none hover:shadow-sm hover:border-sidebar-border hover:bg-sidebar-accent transition-all my-1"
+                                            >
+                                                <Link href={item.url}>
+                                                    {item.icon && <item.icon className="h-5 w-5" />}
+                                                    <span>{item.title}</span>
+                                                </Link>
+                                            </SidebarMenuButton>
+                                        )}
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                ))}
             </SidebarContent>
-            <SidebarFooter className="border-t p-4">
+            <SidebarFooter className="border-t border-black/5 dark:border-white/5 p-4">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             onClick={async () => {
                                 await logout()
                             }}
-                            className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                            size="lg"
+                            className="h-11 text-sm font-medium text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
                         >
                             <LogOut className="h-4 w-4" />
-                            <span>Logout</span>
+                            <span>Sign Out</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
