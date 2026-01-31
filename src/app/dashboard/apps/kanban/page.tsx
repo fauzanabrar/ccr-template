@@ -191,7 +191,7 @@ export default function KanbanPage() {
                         </div>
 
                         <ScrollArea className="flex-1 pr-1">
-                            <div className="flex flex-col gap-3 min-h-[150px] p-1 rounded-xl transition-colors duration-200">
+                            <div className="flex flex-col gap-3 min-h-[150px] p-2 rounded-2xl bg-zinc-50/50 dark:bg-zinc-950/20 border border-zinc-200/50 dark:border-zinc-800/50 transition-colors duration-200">
                                 {column.tasks.map((task) => (
                                     <div
                                         key={task.id}
@@ -200,13 +200,20 @@ export default function KanbanPage() {
                                         className="transition-transform active:scale-95 touch-none"
                                     >
                                         <Card className={cn(
-                                            "group border-none shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-grab active:cursor-grabbing bg-white dark:bg-zinc-900 border-l-4 overflow-hidden",
+                                            "group border border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-grab active:cursor-grabbing bg-white dark:bg-zinc-900 overflow-hidden",
                                             draggedTaskId === task.id ? "opacity-50 grayscale" : "opacity-100"
-                                        )}
-                                            style={{ borderLeftColor: task.priority === 'High' ? '#f43f5e' : task.priority === 'Medium' ? '#f59e0b' : '#3b82f6' }}>
+                                        )}>
                                             <CardContent className="p-4 space-y-4">
                                                 <div className="flex items-start justify-between">
-                                                    <div className="flex flex-wrap gap-1.5 ">
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        <Badge variant="outline" className={cn(
+                                                            "text-[10px] uppercase tracking-tighter font-bold border-none px-2 h-5 flex items-center",
+                                                            task.priority === 'High' ? 'bg-rose-500/10 text-rose-500' :
+                                                                task.priority === 'Medium' ? 'bg-amber-500/10 text-amber-500' :
+                                                                    'bg-blue-500/10 text-blue-500'
+                                                        )}>
+                                                            {task.priority}
+                                                        </Badge>
                                                         {task.tags.map(tag => (
                                                             <span key={tag} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted dark:bg-zinc-800 text-muted-foreground dark:text-zinc-400 uppercase tracking-tight italic">
                                                                 {tag}
@@ -247,7 +254,7 @@ export default function KanbanPage() {
                                 ))}
                                 <Button
                                     variant="ghost"
-                                    className="w-full h-12 border-2 border-dashed border-muted dark:border-zinc-800 hover:border-primary/50 hover:bg-primary/5 dark:hover:bg-indigo-500/10 text-muted-foreground hover:text-primary dark:hover:text-indigo-400 font-bold gap-2 transition-all rounded-xl"
+                                    className="w-full h-12 border-2 border-dashed border-zinc-200 dark:border-zinc-800 hover:border-indigo-500/50 hover:bg-white dark:hover:bg-indigo-500/10 text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 font-bold gap-2 transition-all rounded-xl shadow-sm hover:shadow-md"
                                     onClick={() => { setActiveCol(column.id); setIsAddOpen(true); }}
                                 >
                                     <Plus className="h-4 w-4" /> Add Task
