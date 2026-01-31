@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart, TrendingUp, CreditCard, DollarSign, ArrowUpRight, ArrowDownRight, Printer, Share2 } from "lucide-react"
+import { toast } from "sonner"
 
 const sales = [
     { id: "ORD-7281", customer: "Alice Johnson", date: "Oct 24, 2024", amount: "$120.00", status: "Paid", method: "Visa **** 4242" },
@@ -23,10 +24,10 @@ export default function SalesPage() {
                     <p className="text-muted-foreground">Track your transactions and billing history in real-time.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" className="gap-2">
+                    <Button variant="outline" className="gap-2" onClick={() => window.print()}>
                         <Printer className="h-4 w-4" /> Print
                     </Button>
-                    <Button className="gap-2 shadow-lg">
+                    <Button className="gap-2 shadow-lg" onClick={() => toast.success("Sales report shared successfully")}>
                         <Share2 className="h-4 w-4" /> Share Report
                     </Button>
                 </div>
@@ -39,7 +40,7 @@ export default function SalesPage() {
                     { title: "Avg. Value", val: "$89.50", icon: TrendingUp, delta: "-2%", pos: false },
                     { title: "Active Subs", val: "482", icon: ShoppingCart, delta: "+5%", pos: true },
                 ].map((stat, i) => (
-                    <Card key={i} className="border-none shadow-sm transition-transform hover:scale-[1.02]">
+                    <Card key={i} className="border-none shadow-sm transition-transform hover:scale-[1.02] cursor-pointer" onClick={() => toast.info(`Viewing trends for ${stat.title}`)}>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{stat.title}</CardTitle>
                             <stat.icon className="h-4 w-4 text-primary" />
@@ -63,7 +64,7 @@ export default function SalesPage() {
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
                         <Table className="min-w-[800px]">
-                            <TableHeader className="bg-muted/5">
+                            <TableHeader className="bg-muted/5 text-start">
                                 <TableRow>
                                     <TableHead className="w-[120px] px-6 py-4">Order ID</TableHead>
                                     <TableHead className="px-6 py-4">Customer</TableHead>
@@ -75,7 +76,7 @@ export default function SalesPage() {
                             </TableHeader>
                             <TableBody>
                                 {sales.map((sale) => (
-                                    <TableRow key={sale.id} className="hover:bg-muted/10 transition-colors border-b-muted/50">
+                                    <TableRow key={sale.id} className="hover:bg-muted/10 transition-colors border-b-muted/50 cursor-pointer text-start" onClick={() => toast.info(`Transaction #${sale.id} details`)}>
                                         <TableCell className="font-mono text-xs font-bold text-primary px-6 py-4">{sale.id}</TableCell>
                                         <TableCell className="font-medium px-6 py-4">{sale.customer}</TableCell>
                                         <TableCell className="text-muted-foreground text-xs px-6 py-4">{sale.date}</TableCell>
