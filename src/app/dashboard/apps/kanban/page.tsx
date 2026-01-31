@@ -22,15 +22,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { FileUploader } from "@/components/file-uploader"
 import { cn } from "@/lib/utils"
 
-type Task = {
-    id: string;
-    title: string;
-    priority: "High" | "Medium" | "Low";
-    owner: string;
-    comments: number;
-    attachments: number;
-    tags: string[];
-}
+import { TaskCard, type Task } from "./components/task-card"
+import { TaskDetailsDialog } from "./components/task-details-dialog"
 
 type Column = {
     id: string;
@@ -79,6 +72,8 @@ export default function KanbanPage() {
     const [activeCol, setActiveCol] = useState<string | null>(null);
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [isAssetsOpen, setIsAssetsOpen] = useState(false);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
     const [draggedFromColId, setDraggedFromColId] = useState<string | null>(null);
 
@@ -92,7 +87,6 @@ export default function KanbanPage() {
         e.dataTransfer.setData("taskId", taskId);
         e.dataTransfer.setData("fromColId", colId);
         e.dataTransfer.effectAllowed = "move";
-        // Ghost image styling or opacity can be set here if needed
     }
 
     const handleDragOver = (e: React.DragEvent) => {
@@ -155,6 +149,19 @@ export default function KanbanPage() {
         setTaskTitle("");
     }
 
+    const handleTaskClick = (task: Task) => {
+        setSelectedTask(task);
+        setIsDetailsOpen(true);
+    }
+
+    const handleTaskDelete = (taskId: string) => {
+        setBoard(prev => prev.map(col => ({
+            ...col,
+            tasks: col.tasks.filter(t => t.id !== taskId)
+        })));
+        toast.error("Task removed from board");
+    }
+
     return (
         <div className="h-[calc(100vh-8rem)] flex flex-col gap-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -200,65 +207,15 @@ export default function KanbanPage() {
                         <ScrollArea className="flex-1 pr-1">
                             <div className="flex flex-col gap-3 min-h-[150px] p-2 rounded-2xl bg-zinc-50/50 dark:bg-zinc-950/20 border border-zinc-200/50 dark:border-zinc-800/50 transition-colors duration-200">
                                 {column.tasks.map((task) => (
-                                    <div
+                                    <TaskCard
                                         key={task.id}
-                                        draggable
-                                        onDragStart={(e) => handleDragStart(e, task.id, column.id)}
+                                        task={task}
+                                        colId={column.id}
+                                        isDragged={draggedTaskId === task.id}
+                                        onDragStart={handleDragStart}
                                         onDragEnd={handleDragEnd}
-                                        className="transition-transform active:scale-95 touch-none"
-                                    >
-                                        <Card className={cn(
-                                            "group border border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-grab active:cursor-grabbing bg-white dark:bg-zinc-900 overflow-hidden",
-                                            draggedTaskId === task.id ? "opacity-50 grayscale" : "opacity-100"
-                                        )}>
-                                            <CardContent className="p-4 space-y-4">
-                                                <div className="flex items-start justify-between">
-                                                    <div className="flex flex-wrap gap-1.5">
-                                                        <Badge variant="outline" className={cn(
-                                                            "text-[10px] uppercase tracking-tighter font-bold border-none px-2 h-5 flex items-center",
-                                                            task.priority === 'High' ? 'bg-rose-500/10 text-rose-500' :
-                                                                task.priority === 'Medium' ? 'bg-amber-500/10 text-amber-500' :
-                                                                    'bg-blue-500/10 text-blue-500'
-                                                        )}>
-                                                            {task.priority}
-                                                        </Badge>
-                                                        {task.tags.map(tag => (
-                                                            <span key={tag} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-muted dark:bg-zinc-800 text-muted-foreground dark:text-zinc-400 uppercase tracking-tight italic">
-                                                                {tag}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                    <div className="p-1 rounded hover:bg-muted dark:hover:bg-zinc-800 transition-colors">
-                                                        <GripVertical className="h-4 w-4 text-muted-foreground opacity-50" />
-                                                    </div>
-                                                </div>
-
-                                                <p className="font-bold text-sm text-start leading-snug group-hover:text-primary transition-colors dark:text-zinc-100">
-                                                    {task.title}
-                                                </p>
-
-                                                <div className="flex items-center justify-between pt-4 border-t border-muted/50 dark:border-zinc-800">
-                                                    <div className="flex items-center gap-3 text-muted-foreground">
-                                                        <div className="flex items-center gap-1">
-                                                            <MessageSquare className="h-3.5 w-3.5" />
-                                                            <span className="text-[10px] font-bold">{task.comments}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-1">
-                                                            <Paperclip className="h-3.5 w-3.5" />
-                                                            <span className="text-[10px] font-bold">{task.attachments}</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center -space-x-2">
-                                                        <Avatar className="h-6 w-6 border-2 border-white dark:border-zinc-900 ring-2 ring-transparent group-hover:ring-primary/20 transition-all shadow-sm">
-                                                            <AvatarFallback className="text-[8px] font-black bg-indigo-500 text-white leading-none">
-                                                                {task.owner}
-                                                            </AvatarFallback>
-                                                        </Avatar>
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </div>
+                                        onClick={handleTaskClick}
+                                    />
                                 ))}
                                 <Button
                                     variant="ghost"
@@ -333,6 +290,14 @@ export default function KanbanPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Task Details Dialog */}
+            <TaskDetailsDialog
+                task={selectedTask}
+                open={isDetailsOpen}
+                onOpenChange={setIsDetailsOpen}
+                onDelete={handleTaskDelete}
+            />
         </div>
     )
 }
