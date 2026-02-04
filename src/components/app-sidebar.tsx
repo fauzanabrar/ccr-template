@@ -16,6 +16,7 @@ import {
 import { logout } from "@/lib/actions"
 import { sidebarGroups } from "@/lib/navigation"
 import { SidebarItem } from "./sidebar_item"
+import { useTransition } from "react"
 
 interface AppSidebarProps {
     user?: {
@@ -25,6 +26,8 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ user }: AppSidebarProps) {
+    const [isPending, startTransition] = useTransition()
+
     return (
         <Sidebar className="border-r-0 bg-white/60 dark:bg-zinc-950/60 backdrop-blur-2xl shadow-xl transition-all duration-300">
             <SidebarHeader className="h-16 flex items-center justify-center border-b border-black/5 dark:border-white/5 px-6">
@@ -52,14 +55,17 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
-                            onClick={async () => {
-                                await logout()
+                            onClick={() => {
+                                startTransition(async () => {
+                                    await logout()
+                                })
                             }}
+                            disabled={isPending}
                             size="lg"
                             className="h-11 text-sm font-medium text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
                         >
                             <LogOut className="h-4 w-4" />
-                            <span>Sign Out</span>
+                            <span>{isPending ? "Signing Out..." : "Sign Out"}</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
