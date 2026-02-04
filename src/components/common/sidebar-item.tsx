@@ -8,6 +8,7 @@ import {
     SidebarMenuSub,
     SidebarMenuSubButton,
     SidebarMenuSubItem,
+    useSidebar,
 } from "@/components/ui/sidebar"
 import { SidebarItem as SidebarItemType } from "@/lib/navigation"
 
@@ -17,6 +18,13 @@ interface SidebarItemProps {
 
 export function SidebarItem({ item }: SidebarItemProps) {
     const pathname = usePathname()
+    const { isMobile, setOpenMobile } = useSidebar()
+
+    const handleClick = () => {
+        if (isMobile) {
+            setOpenMobile(false)
+        }
+    }
 
     const isActive = (url?: string) => {
         if (!url) return false
@@ -41,7 +49,7 @@ export function SidebarItem({ item }: SidebarItemProps) {
                                     size="md"
                                     className="h-10 text-base font-medium border border-transparent hover:bg-sidebar-accent hover:border-sidebar-border hover:shadow-sm transition-all"
                                 >
-                                    <Link href={subItem.url}>
+                                    <Link href={subItem.url} onClick={handleClick}>
                                         <span>{subItem.title}</span>
                                     </Link>
                                 </SidebarMenuSubButton>
@@ -62,7 +70,7 @@ export function SidebarItem({ item }: SidebarItemProps) {
                 size="lg"
                 className="h-12 text-base font-medium border border-transparent shadow-none hover:shadow-sm hover:border-sidebar-border hover:bg-sidebar-accent transition-all"
             >
-                <Link href={item.url || "#"}>
+                <Link href={item.url || "#"} onClick={handleClick}>
                     {item.icon && <item.icon className="h-5 w-5" />}
                     <span>{item.title}</span>
                 </Link>
